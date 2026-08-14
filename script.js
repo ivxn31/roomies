@@ -6,49 +6,32 @@ const categories = {
 			"Bolsa para basura",
 			"Bolsa de asa",
 			"Servilletas",
-			"Paquete de Cerrillos(la central)",
-			"Cloro",
+			"Cerillos",
 			"Limpiador para piso",
 			"Limpiador para estufa",
 			"Estropajos para trastes",
-			"Jabón líquido para trastes",
+			"Jabón para trastes",
 			"Garrafón de agua",
-			"Rollo",
+			"Papel de baño",
 			"Jabón líquido para el baño",
+			"Luz",
 		],
-	},
-	servicios: {
-		label: "Servicios",
-		icon: "💡",
-		concepts: ["Internet", "Luz"],
-	},
-	tareas: {
-		label: "Tareas",
-		icon: "🧹",
-		concepts: ["Limpiar el baño", "Limpiar las áreas comunes", "Limpiar el refrigerador"],
 	},
 };
 
 const roommates = {
-	julio: {
-		name: "Julio",
-		concepts: {
-			"Jabón líquido para trastes": "✅ 15/07/2026",
-			"Garrafón de agua": "✅ Fecha desconocida",
-			Internet: "❌ 00/00/0000",
-			Luz: "❌ 00/00/0000",
-		},
-	},
 	osmar: {
 		name: "Osmar",
 		concepts: {
+			"Bolsa para basura": "✅ 13/08/2026",
+			Cerillos: "✅ 13/08/2026",
+			"Jabón para trastes": "✅ 13/08/2026",
+			"Papel de baño": "✅ 13/08/2026",
 			Servilletas: "✅ Fecha desconocida",
 			"Limpiador para estufa": "✅ 15/07/2026",
 			"Estropajos para trastes": "✅ Fecha desconocida",
 			"Garrafón de agua": "✅ Fecha desconocida",
-			Rollo: "✅ Fecha desconocida",
 			"Jabón líquido para el baño": "✅ Fecha desconocida",
-			Internet: "✅ 09/07/2026",
 			Luz: "✅ 30/05/2026",
 		},
 	},
@@ -58,20 +41,15 @@ const roommates = {
 			"Bolsa para basura": "✅ 01/03/2026",
 			"Bolsa de asa": "✅ 01/03/2026",
 			Servilletas: "✅ 27/06/2026",
-			"Paquete de Cerrillos(la central)": "✅ 01/03/2026",
-			Cloro: "❌ 00/00/0000",
+			Cerillos: "✅ 01/03/2026",
 			"Limpiador para piso": "✅ 11/07/2026",
 			"Limpiador para estufa": "❌ 00/00/0000",
 			"Estropajos para trastes": "✅ 11/06/2026",
-			"Jabón líquido para trastes": "✅ 16/07/2026",
-			"Garrafón de agua": "✅ 15/07/2026",
-			Rollo: "✅ 01/06/2026",
+			"Jabón para trastes": "✅ 16/07/2026",
+			"Garrafón de agua": "✅ 08/08/2026",
+			"Papel de baño": "✅ 01/06/2026",
 			"Jabón líquido para el baño": "✅ 11/06/2026",
-			Internet: "✅ 09/07/2026",
 			Luz: "✅ 02/04/2026",
-			"Limpiar el baño": "✅ 27/06/2026",
-			"Limpiar las áreas comunes": "✅ 11/06/2026",
-			"Limpiar el refrigerador": "❌ 00/00/0000",
 		},
 	},
 };
@@ -80,22 +58,40 @@ const DEFAULT_PENDING = "❌ 00/00/0000";
 
 const roommateMeta = {
 	osmar: { href: "osmar.html", color: "from-cyan-200 to-sky-300" },
-	julio: { href: "julio.html", color: "from-emerald-200 to-teal-300" },
 	ivan: { href: "ivan.html", color: "from-amber-200 to-orange-300" },
 };
 
-const roommateOrder = ["osmar", "julio", "ivan"];
+const roommateOrder = ["osmar", "ivan"];
+
+const rulesImages = [
+	"imgs/basura.png",
+	"imgs/convivencia.jpeg",
+	"imgs/reglas.jpeg",
+	"imgs/servicios.png",
+];
+
+let currentRuleIndex = 0;
+let touchStartX = 0;
 
 const dom = {
-	currentDate: document.getElementById("currentDate"),
 	roommatesCards: document.getElementById("roommatesCards"),
+	sharedTurns: document.getElementById("sharedTurns"),
 	roomieDetail: document.getElementById("roomieDetail"),
+	openRulesGallery: document.getElementById("openRulesGallery"),
+	rulesModal: document.getElementById("rulesModal"),
+	closeRulesGallery: document.getElementById("closeRulesGallery"),
+	prevRule: document.getElementById("prevRule"),
+	nextRule: document.getElementById("nextRule"),
+	rulesImage: document.getElementById("rulesImage"),
+	rulesCounter: document.getElementById("rulesCounter"),
+	rulesTrack: document.getElementById("rulesTrack"),
 };
 
 function init() {
 	if (dom.roommatesCards) {
-		renderCurrentDate();
 		renderRoommateCards();
+		renderSharedTurns();
+		setupRulesGallery();
 	}
 
 	if (dom.roomieDetail) {
@@ -103,16 +99,114 @@ function init() {
 	}
 }
 
-function renderCurrentDate() {
-	if (!dom.currentDate) {
+function setupRulesGallery() {
+	if (!dom.openRulesGallery || !dom.rulesModal || !dom.rulesImage) {
 		return;
 	}
 
-	const today = new Date();
-	const date = String(today.getDate()).padStart(2, "0");
-	const month = String(today.getMonth() + 1).padStart(2, "0");
-	const year = today.getFullYear();
-	dom.currentDate.textContent = `Fecha actual: ${date}/${month}/${year}`;
+	dom.openRulesGallery.addEventListener("click", openRulesGallery);
+	dom.closeRulesGallery?.addEventListener("click", closeRulesGallery);
+	dom.prevRule?.addEventListener("click", showPrevRule);
+	dom.nextRule?.addEventListener("click", showNextRule);
+
+	dom.rulesModal.addEventListener("click", (event) => {
+		const target = event.target;
+		if (target instanceof HTMLElement && target.dataset.closeModal === "true") {
+			closeRulesGallery();
+		}
+	});
+
+	document.addEventListener("keydown", handleRulesKeyboard);
+
+	dom.rulesTrack?.addEventListener("touchstart", (event) => {
+		touchStartX = event.changedTouches[0]?.clientX || 0;
+	});
+
+	dom.rulesTrack?.addEventListener("touchend", (event) => {
+		const touchEndX = event.changedTouches[0]?.clientX || 0;
+		const deltaX = touchEndX - touchStartX;
+
+		if (Math.abs(deltaX) < 45) {
+			return;
+		}
+
+		if (deltaX < 0) {
+			showNextRule();
+			return;
+		}
+
+		showPrevRule();
+	});
+
+	renderRuleImage();
+}
+
+function openRulesGallery() {
+	if (!dom.rulesModal) {
+		return;
+	}
+
+	renderRuleImage();
+	dom.rulesModal.classList.remove("hidden");
+	document.body.style.overflow = "hidden";
+}
+
+function closeRulesGallery() {
+	if (!dom.rulesModal) {
+		return;
+	}
+
+	dom.rulesModal.classList.add("hidden");
+	document.body.style.overflow = "";
+}
+
+function showNextRule() {
+	if (!rulesImages.length) {
+		return;
+	}
+
+	currentRuleIndex = (currentRuleIndex + 1) % rulesImages.length;
+	renderRuleImage();
+}
+
+function showPrevRule() {
+	if (!rulesImages.length) {
+		return;
+	}
+
+	currentRuleIndex = (currentRuleIndex - 1 + rulesImages.length) % rulesImages.length;
+	renderRuleImage();
+}
+
+function renderRuleImage() {
+	if (!dom.rulesImage || !dom.rulesCounter || !rulesImages.length) {
+		return;
+	}
+
+	const src = rulesImages[currentRuleIndex];
+	dom.rulesImage.src = src;
+	dom.rulesImage.alt = `Regla de convivencia ${currentRuleIndex + 1}`;
+	dom.rulesCounter.textContent = `${currentRuleIndex + 1} de ${rulesImages.length}`;
+}
+
+function handleRulesKeyboard(event) {
+	if (!dom.rulesModal || dom.rulesModal.classList.contains("hidden")) {
+		return;
+	}
+
+	if (event.key === "Escape") {
+		closeRulesGallery();
+		return;
+	}
+
+	if (event.key === "ArrowRight") {
+		showNextRule();
+		return;
+	}
+
+	if (event.key === "ArrowLeft") {
+		showPrevRule();
+	}
 }
 
 function renderRoommateCards() {
@@ -136,6 +230,112 @@ function renderRoommateCards() {
 		.join("");
 
 	dom.roommatesCards.innerHTML = cardsHTML;
+}
+
+function renderSharedTurns() {
+	if (!dom.sharedTurns) {
+		return;
+	}
+
+	const turnConcepts = [...categories.compras.concepts];
+	const turns = turnConcepts.map((concept) => getTurnForConcept(concept));
+
+	const turnsHTML = turns
+		.map((turn) => {
+			if (!turn.ownerKey) {
+				return `
+					<article class="glass-panel shared-turn-card">
+						<p class="text-sm font-extrabold text-slate-800">${turn.concept}</p>
+						<p class="mt-1 text-sm text-slate-600">No hay fechas válidas para asignar turno.</p>
+					</article>
+				`;
+			}
+
+			const owner = roommates[turn.ownerKey]?.name || turn.ownerKey;
+
+			return `
+				<article class="glass-panel shared-turn-card">
+					<p class="text-sm font-extrabold text-slate-800">${turn.concept}</p>
+					<p class="mt-1 text-sm text-slate-600">
+						Le toca a <span class="font-bold text-slate-800">${owner}</span>.
+					</p>
+					<p class="mt-1 text-xs text-slate-500">
+						Fecha más antigua registrada: ${turn.oldestDateText}
+					</p>
+				</article>
+			`;
+		})
+		.join("");
+
+	dom.sharedTurns.innerHTML = turnsHTML;
+}
+
+function getTurnForConcept(concept) {
+	const entries = roommateOrder
+		.map((roommateKey) => {
+			const raw = roommates[roommateKey]?.concepts?.[concept] || DEFAULT_PENDING;
+			const date = extractDate(raw);
+
+			return {
+				roommateKey,
+				date,
+			};
+		})
+		.filter(Boolean);
+
+	const withoutValidDate = entries.filter((entry) => !entry.date);
+
+	if (withoutValidDate.length) {
+		return {
+			concept,
+			ownerKey: withoutValidDate[0].roommateKey,
+			oldestDateText: "Sin fecha valida",
+		};
+	}
+
+	const candidates = [...entries].sort((a, b) => a.date - b.date);
+
+	if (!candidates.length) {
+		return {
+			concept,
+			ownerKey: "",
+			oldestDateText: "Sin fecha",
+		};
+	}
+
+	return {
+		concept,
+		ownerKey: candidates[0].roommateKey,
+		oldestDateText: formatDate(candidates[0].date),
+	};
+}
+
+function extractDate(value) {
+	if (!value || !value.startsWith("✅")) {
+		return null;
+	}
+
+	const match = value.match(/(\d{2})\/(\d{2})\/(\d{4})/u);
+
+	if (!match) {
+		return null;
+	}
+
+	const [, day, month, year] = match;
+	const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+	if (Number.isNaN(date.getTime())) {
+		return null;
+	}
+
+	return date;
+}
+
+function formatDate(date) {
+	const day = String(date.getDate()).padStart(2, "0");
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const year = date.getFullYear();
+	return `${day}/${month}/${year}`;
 }
 
 function renderRoomieDetail() {

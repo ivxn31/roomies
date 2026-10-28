@@ -23,7 +23,7 @@ const roommates = {
 		name: "Osmar",
 		concepts: {
 			"Bolsa para basura": "✅ 13/08/2026",
-			"Bolsa de asa": "❌ 00/00/0000",
+			"Bolsa de asa": "❌ 23/10/2026",
 			"Servilletas": "✅ 24/08/2026",
 			"Limpiador para piso": "❌ 00/00/0000",
 			"Limpiador para estufa": "✅ 15/07/2026",
@@ -46,9 +46,25 @@ const roommates = {
 			"Jabón para trastes": "✅ 19/10/2026",
 			"Papel de baño": "✅ 19/09/2026",
 			"Estropajos para trastes": "✅ 11/06/2026",
-			"Garrafón de agua": "✅ 13/09/2026",
+			"Garrafón de agua": "✅ 23/10/2026",
 			"Jabón líquido para el baño": "✅ 11/06/2026",
 			"Luz": "✅ 27/09/2026",
+		},
+	},
+	cesar: {
+		name: "Cesar",
+		concepts: {
+			"Bolsa para basura": "❌ 00/00/0000",
+			"Bolsa de asa": "❌ 00/00/0000",
+			"Servilletas": "❌ 00/00/0000",
+			"Limpiador para piso": "❌ 00/00/0000",
+			"Limpiador para estufa": "❌ 00/00/0000",
+			"Jabón para trastes": "❌ 00/00/0000",
+			"Papel de baño": "❌ 00/00/0000",
+			"Estropajos para trastes": "❌ 00/00/0000",
+			"Garrafón de agua": "❌ 00/00/0000",
+			"Jabón líquido para el baño": "❌ 00/00/0000",
+			"Luz": "❌ 00/00/0000",
 		},
 	},
 };
@@ -58,9 +74,17 @@ const DEFAULT_PENDING = "❌ 00/00/0000";
 const roommateMeta = {
 	osmar: { href: "osmar.html", color: "from-cyan-200 to-sky-300" },
 	ivan: { href: "ivan.html", color: "from-amber-200 to-orange-300" },
+	cesar: { href: "cesar.html", color: "from-violet-200 to-purple-300" },
 };
 
-const roommateOrder = ["osmar", "ivan"];
+const roommateOrder = ["osmar", "ivan", "cesar"];
+
+const turnOverrides = {
+	"Luz": "osmar",
+	"Bolsa de asa": "cesar",
+	"Servilletas": "cesar",
+	"Jabón para trastes": "osmar",
+};
 
 const rulesImages = [
 	"imgs/basura.png",
@@ -259,7 +283,7 @@ function renderSharedTurns() {
 						Le toca a <span class="font-bold text-slate-800">${owner}</span>.
 					</p>
 					<p class="mt-1 text-xs text-slate-500">
-						Fecha más antigua registrada: ${turn.oldestDateText}
+						${turn.isManual ? turn.oldestDateText : `Fecha más antigua registrada: ${turn.oldestDateText}`}
 					</p>
 				</article>
 			`;
@@ -270,6 +294,17 @@ function renderSharedTurns() {
 }
 
 function getTurnForConcept(concept) {
+	const overrideOwnerKey = turnOverrides[concept];
+
+	if (overrideOwnerKey) {
+		return {
+			concept,
+			ownerKey: overrideOwnerKey,
+			oldestDateText: "Asignación manual",
+			isManual: true,
+		};
+	}
+
 	const entries = roommateOrder
 		.map((roommateKey) => {
 			const raw = roommates[roommateKey]?.concepts?.[concept] || DEFAULT_PENDING;

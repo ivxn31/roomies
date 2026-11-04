@@ -1,7 +1,6 @@
 const categories = {
 	compras: {
 		label: "Compras",
-		icon: "🛒",
 		concepts: [
 			"Bolsa para basura",
 			"Bolsa de asa",
@@ -22,54 +21,54 @@ const roommates = {
 	osmar: {
 		name: "Osmar",
 		concepts: {
-			"Bolsa para basura": "✅ 13/08/2026",
-			"Bolsa de asa": "❌ 23/10/2026",
-			"Servilletas": "✅ 24/08/2026",
-			"Limpiador para piso": "❌ 00/00/0000",
-			"Limpiador para estufa": "✅ 15/07/2026",
-			"Jabón para trastes": "✅ 13/08/2026",
-			"Papel de baño": "✅ 13/08/2026",
-			"Estropajos para trastes": "✅ Fecha desconocida",
-			"Garrafón de agua": "✅ 20/10/2026",
-			"Jabón líquido para el baño": "✅ Fecha desconocida",
-			"Luz": "✅ 30/05/2026",
+			"Bolsa para basura": "13/08/2026",
+			"Bolsa de asa": "23/10/2026",
+			"Servilletas": "24/08/2026",
+			"Limpiador para piso": "31/10/2026",
+			"Limpiador para estufa": "15/07/2026",
+			"Jabón para trastes": "31/10/2026",
+			"Papel de baño": "31/10/2026",
+			"Estropajos para trastes": "31/10/2026",
+			"Garrafón de agua": "20/10/2026",
+			"Jabón líquido para el baño": "31/10/2026",
+			"Luz": "pendiente",
 		},
 	},
 	ivan: {
-		name: "Ivan",
+		name: "Iván",
 		concepts: {
-			"Bolsa para basura": "✅ 01/03/2026",
-			"Bolsa de asa": "✅ 01/03/2026",
-			"Servilletas": "✅ 27/06/2026",
-			"Limpiador para piso": "✅ 11/07/2026",
-			"Limpiador para estufa": "❌ 00/00/0000",
-			"Jabón para trastes": "✅ 19/10/2026",
-			"Papel de baño": "✅ 19/09/2026",
-			"Estropajos para trastes": "✅ 11/06/2026",
-			"Garrafón de agua": "✅ 23/10/2026",
-			"Jabón líquido para el baño": "✅ 11/06/2026",
-			"Luz": "✅ 27/09/2026",
+			"Bolsa para basura": "01/03/2026",
+			"Bolsa de asa": "01/03/2026",
+			"Servilletas": "27/06/2026",
+			"Limpiador para piso": "11/07/2026",
+			"Limpiador para estufa": "pendiente",
+			"Jabón para trastes": "19/10/2026",
+			"Papel de baño": "19/09/2026",
+			"Estropajos para trastes": "11/06/2026",
+			"Garrafón de agua": "28/10/2026",
+			"Jabón líquido para el baño": "11/06/2026",
+			"Luz": "27/09/2026",
 		},
 	},
 	cesar: {
-		name: "Cesar",
+		name: "César",
 		concepts: {
-			"Bolsa para basura": "❌ 00/00/0000",
-			"Bolsa de asa": "❌ 00/00/0000",
-			"Servilletas": "❌ 00/00/0000",
-			"Limpiador para piso": "❌ 00/00/0000",
-			"Limpiador para estufa": "❌ 00/00/0000",
-			"Jabón para trastes": "❌ 00/00/0000",
-			"Papel de baño": "❌ 00/00/0000",
-			"Estropajos para trastes": "❌ 00/00/0000",
-			"Garrafón de agua": "❌ 00/00/0000",
-			"Jabón líquido para el baño": "❌ 00/00/0000",
-			"Luz": "❌ 00/00/0000",
+			"Bolsa para basura": "pendiente",
+			"Bolsa de asa": "pendiente",
+			"Servilletas": "pendiente",
+			"Limpiador para piso": "pendiente",
+			"Limpiador para estufa": "pendiente",
+			"Jabón para trastes": "pendiente",
+			"Papel de baño": "pendiente",
+			"Estropajos para trastes": "pendiente",
+			"Garrafón de agua": "pendiente",
+			"Jabón líquido para el baño": "pendiente",
+			"Luz": "pendiente",
 		},
 	},
 };
 
-const DEFAULT_PENDING = "❌ 00/00/0000";
+const DEFAULT_PENDING = "pendiente";
 
 const roommateMeta = {
 	osmar: { href: "osmar.html", color: "from-cyan-200 to-sky-300" },
@@ -77,13 +76,13 @@ const roommateMeta = {
 	cesar: { href: "cesar.html", color: "from-violet-200 to-purple-300" },
 };
 
-const roommateOrder = ["osmar", "ivan", "cesar"];
+const roommateOrder = ["ivan", "osmar", "cesar"];
 
 const turnOverrides = {
 	"Luz": "osmar",
 	"Bolsa de asa": "cesar",
 	"Servilletas": "cesar",
-	"Jabón para trastes": "osmar",
+	"Jabón para trastes": "cesar",
 };
 
 const rulesImages = [
@@ -275,15 +274,19 @@ function renderSharedTurns() {
 			}
 
 			const owner = roommates[turn.ownerKey]?.name || turn.ownerKey;
+			const ownerStatus = parseStatus(roommates[turn.ownerKey].concepts[turn.concept] || DEFAULT_PENDING);
 
 			return `
 				<article class="glass-panel shared-turn-card">
 					<p class="text-sm font-extrabold text-slate-800">${turn.concept}</p>
 					<p class="mt-1 text-sm text-slate-600">
-						Le toca a <span class="font-bold text-slate-800">${owner}</span>.
+						Responsable: <strong class="font-bold text-slate-800">${owner}</strong>.
+						<span class="turn-status ${ownerStatus.isComplete ? "turn-status--complete" : "turn-status--pending"}">
+							${ownerStatus.isComplete ? "Compra registrada" : "Debe comprarse"}
+						</span>
 					</p>
 					<p class="mt-1 text-xs text-slate-500">
-						${turn.isManual ? turn.oldestDateText : `Fecha más antigua registrada: ${turn.oldestDateText}`}
+						${turn.isManual ? turn.oldestDateText : `Fecha de referencia: ${turn.oldestDateText}`}
 					</p>
 				</article>
 			`;
@@ -323,7 +326,7 @@ function getTurnForConcept(concept) {
 		return {
 			concept,
 			ownerKey: withoutValidDate[0].roommateKey,
-			oldestDateText: "Sin fecha valida",
+			oldestDateText: "Sin fecha válida",
 		};
 	}
 
@@ -345,7 +348,7 @@ function getTurnForConcept(concept) {
 }
 
 function extractDate(value) {
-	if (!value || !value.startsWith("✅")) {
+	if (!value || value === "pendiente") {
 		return null;
 	}
 
@@ -421,10 +424,7 @@ function renderRoomieDetail() {
 
 			return `
 				<section class="glass-panel p-4 sm:p-5" aria-labelledby="category-${categoryKey}">
-					<div class="flex items-center gap-2">
-						<span class="text-lg" aria-hidden="true">${category.icon}</span>
-						<h2 id="category-${categoryKey}" class="text-base font-extrabold text-slate-800">${category.label}</h2>
-					</div>
+					<h2 id="category-${categoryKey}" class="text-base font-extrabold text-slate-800">${category.label}</h2>
 					<ul class="mt-3 space-y-2">
 						${itemsHTML}
 					</ul>
@@ -443,9 +443,10 @@ function getAllConcepts() {
 }
 
 function parseStatus(value) {
-	const isComplete = value.startsWith("✅");
-	const dateText = value.replace(/^✅\s*|^❌\s*/u, "").trim();
-	return { isComplete, dateText };
+	const isComplete = value !== "pendiente";
+	const date = isComplete ? extractDate(value) : null;
+	const dateText = isComplete ? value : "Sin fecha de compra";
+	return { isComplete, date, dateText };
 }
 
 init();

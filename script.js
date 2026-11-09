@@ -53,7 +53,7 @@ const roommates = {
 	cesar: {
 		name: "César",
 		concepts: {
-			"Bolsa para basura": "pendiente",
+			"Bolsa para basura": "06/11/2026",
 			"Bolsa de asa": "pendiente",
 			"Servilletas": "pendiente",
 			"Limpiador para piso": "pendiente",
@@ -61,7 +61,7 @@ const roommates = {
 			"Jabón para trastes": "pendiente",
 			"Papel de baño": "pendiente",
 			"Estropajos para trastes": "pendiente",
-			"Garrafón de agua": "pendiente",
+			"Garrafón de agua": "05/11/2026",
 			"Jabón líquido para el baño": "pendiente",
 			"Luz": "pendiente",
 		},

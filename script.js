@@ -29,7 +29,7 @@ const roommates = {
 			"Jabón para trastes": "31/10/2026",
 			"Papel de baño": "31/10/2026",
 			"Estropajos para trastes": "31/10/2026",
-			"Garrafón de agua": "20/10/2026",
+			"Garrafón de agua": "10/11/2026",
 			"Jabón líquido para el baño": "31/10/2026",
 			"Luz": "pendiente",
 		},
@@ -274,16 +274,12 @@ function renderSharedTurns() {
 			}
 
 			const owner = roommates[turn.ownerKey]?.name || turn.ownerKey;
-			const ownerStatus = parseStatus(roommates[turn.ownerKey].concepts[turn.concept] || DEFAULT_PENDING);
 
 			return `
 				<article class="glass-panel shared-turn-card">
 					<p class="text-sm font-extrabold text-slate-800">${turn.concept}</p>
 					<p class="mt-1 text-sm text-slate-600">
 						Responsable: <strong class="font-bold text-slate-800">${owner}</strong>.
-						<span class="turn-status ${ownerStatus.isComplete ? "turn-status--complete" : "turn-status--pending"}">
-							${ownerStatus.isComplete ? "Compra registrada" : "Debe comprarse"}
-						</span>
 					</p>
 					<p class="mt-1 text-xs text-slate-500">
 						${turn.isManual ? turn.oldestDateText : `Fecha de referencia: ${turn.oldestDateText}`}

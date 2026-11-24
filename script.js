@@ -45,7 +45,7 @@ const roommates = {
 			"Jabón para trastes": "19/10/2026",
 			"Papel de baño": "19/09/2026",
 			"Estropajos para trastes": "11/06/2026",
-			"Garrafón de agua": "28/10/2026",
+			"Garrafón de agua": "22/11/2026",
 			"Jabón líquido para el baño": "11/06/2026",
 			"Luz": "27/09/2026",
 		},
